@@ -39,7 +39,7 @@ if __name__ == "__main__":
 
     # In infer.py, replace the np.random.rand line with this:
     from np_img_conversions import img_to_np
-    test_input = img_to_np('img.jpg').astype(np.float32)
+    test_input = img_to_np('img.jpg').astype(np.float32) / 255.0
 
     print(f"Input array shape: {test_input.shape}")
 

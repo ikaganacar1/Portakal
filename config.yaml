@@ -5,9 +5,11 @@ data:
   target_dir: "target_oranges"
 
 training:
-  epochs: 500
-  batch_size: 4       # <-- ADD THIS! Start with 4 or 8 depending on GPU VRAM
-  learning_rate: 0.001
+  epochs: 1000
+  batch_size: 4
+  learning_rate: 0.0001
+  min_lr: 0.000001
+  scheduler: cosine
   print_freq: 10
 
 early_stopping:
