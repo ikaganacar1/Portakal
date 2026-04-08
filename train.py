@@ -1,5 +1,6 @@
 # train.py
 import os
+import glob
 import random
 import argparse
 import yaml
@@ -7,6 +8,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import numpy as np
+import cv2
 import torchvision.transforms.functional as TF
 from torch.utils.data import Dataset, DataLoader
 from model import SimpleNet
@@ -56,6 +58,11 @@ class ImageDataset(Dataset):
         self.target_files = sorted([f for f in os.listdir(target_dir) if os.path.isfile(os.path.join(target_dir, f))])
 
         assert len(self.input_files) == len(self.target_files), "Mismatch in number of input and target images!"
+
+        # Shuffle targets with a fixed seed so each input maps to a different orange.
+        # Fixed seed ensures the pairing is stable across training runs.
+        rng = random.Random(42)
+        rng.shuffle(self.target_files)
 
     def __len__(self):
         return len(self.input_files)
@@ -110,6 +117,14 @@ def main(config):
         max_patience=config['early_stopping']['max_patience']
     )
 
+    # Pick the first input image as the fixed probe for visualizing progress
+    os.makedirs('frames', exist_ok=True)
+    probe_file = sorted(os.listdir(config['data']['input_dir']))[0]
+    probe_path = os.path.join(config['data']['input_dir'], probe_file)
+    probe_np = img_to_np(probe_path).astype(np.float32) / 255.0
+    probe_tensor = torch.tensor(probe_np.transpose(2, 0, 1)).unsqueeze(0).to(device)
+    print(f"Probe image: {probe_file}")
+
     print(f"Starting training for {epochs} epochs...")
     for epoch in range(epochs):
         epoch_loss = 0.0
@@ -135,6 +150,14 @@ def main(config):
         if is_best:
             torch.save(model.state_dict(), save_path)
 
+        # Save a frame of the probe image prediction every epoch
+        model.eval()
+        with torch.no_grad():
+            frame = model(probe_tensor).squeeze(0).cpu().numpy().transpose(1, 2, 0)
+        model.train()
+        frame_uint8 = (np.clip(frame, 0.0, 1.0) * 255).astype(np.uint8)
+        cv2.imwrite(f'frames/epoch_{epoch+1:04d}.png', cv2.cvtColor(frame_uint8, cv2.COLOR_RGB2BGR))
+
         if stop_training:
             print(f"Stopping at Epoch {epoch+1}. Best model weights are secured in '{save_path}'.")
             break
@@ -143,6 +166,17 @@ def main(config):
             print(f"Epoch [{epoch+1}/{epochs}], Avg Loss: {avg_epoch_loss:.6f} | LR: {current_lr:.7f} | Patience: {early_stopper.current_patience}")
 
     print("Training process finalized.")
+
+    # Stitch saved frames into a video
+    frame_files = sorted(glob.glob('frames/epoch_*.png'))
+    if frame_files:
+        sample = cv2.imread(frame_files[0])
+        h, w = sample.shape[:2]
+        writer = cv2.VideoWriter('training_progress.mp4', cv2.VideoWriter_fourcc(*'mp4v'), 30, (w, h))
+        for f in frame_files:
+            writer.write(cv2.imread(f))
+        writer.release()
+        print(f"Training progress video saved to training_progress.mp4 ({len(frame_files)} frames @ 30fps)")
 
 
 if __name__ == "__main__":
