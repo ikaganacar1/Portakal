@@ -44,7 +44,7 @@ def main():
     target_tensor = torch.tensor(target_np.transpose(2, 0, 1)).unsqueeze(0)
 
     # 3. Training Loop
-    epochs = 50
+    epochs = 500
     print("Starting training...")
     for epoch in range(epochs):
         optimizer.zero_grad()
