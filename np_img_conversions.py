@@ -1,8 +1,9 @@
 import argparse
 import numpy as np
-from matplotlib import pyplot as plt
 import matplotlib
+matplotlib.use('Agg') # or 'Qt5Agg'import matplotlib
 import matplotlib.image as mpimg
+from matplotlib import pyplot as plt
 
 def img_to_np(img_:str):
     return mpimg.imread(img_)
@@ -15,6 +16,7 @@ def np_to_img(arr_):
     ax.axis('off')
 
     ax.imshow(arr_, interpolation='nearest')
+    plt.savefig("result.png", bbox_inches='tight', pad_inches=0)
     plt.show()
 
 if __name__ == "__main__":

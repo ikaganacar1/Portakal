@@ -41,6 +41,7 @@ if __name__ == "__main__":
     print(f"Input array shape: {test_input.shape}")
 
     test_output = predict(my_model, test_input)
+    test_output = np.clip(test_output, 0.0, 1.0)    
     
     print(f"Output array shape: {test_output.shape}")
     print(f"Output type: {type(test_output)}")
