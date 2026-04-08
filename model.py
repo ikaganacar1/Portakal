@@ -20,7 +20,7 @@ class SimpleNet(nn.Module):
             
             # Map back to 3 RGB channels
             nn.Conv2d(in_channels=16, out_channels=3, kernel_size=3, padding=1),
-            nn.Sigmoid() # Forces all output values to be strictly between 0.0 and 1.0
+            #nn.Sigmoid() # Forces all output values to be strictly between 0.0 and 1.0
         )
 
     def forward(self, x):
