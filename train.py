@@ -31,7 +31,7 @@ def main():
 
     # 2. Load the data
     # (Update these directory paths to match your local file structure)
-    inputs_list = load_data('colored_oranges')
+    inputs_list = load_data('orange_oranges')
     targets_list = load_data('orange_oranges')
 
     # To maintain your current setup (training on a single image), 
