@@ -61,8 +61,8 @@ class ImageDataset(Dataset):
 
         # Shuffle targets with a fixed seed so each input maps to a different orange.
         # Fixed seed ensures the pairing is stable across training runs.
-        rng = random.Random(42)
-        rng.shuffle(self.target_files)
+        #rng = random.Random(42)
+        #rng.shuffle(self.target_files)
 
     def __len__(self):
         return len(self.input_files)
