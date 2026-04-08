@@ -1,0 +1,18 @@
+# config.yaml
+
+data:
+  input_dir: "colored_oranges"
+  target_dir: "target_oranges"
+
+training:
+  epochs: 500
+  batch_size: 4       # <-- ADD THIS! Start with 4 or 8 depending on GPU VRAM
+  learning_rate: 0.001
+  print_freq: 10
+
+early_stopping:
+  base_patience: 30
+  max_patience: 100
+
+model:
+  save_path: "simple_net.pth"
